@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import client from "../../../API"; // Adjust this import to your actual API client's location
+import axios from "axios"; // Import axios to do HTTP methods
 import {
   Typography,
   Box,
@@ -30,8 +30,12 @@ import {
 import blitzLogo from "../../../Components/globalAssets/platty.png";
 import routes from "../../../Config/routes";
 import profilePhoto from "../../../Components/globalAssets/ppfLogo.png"; // Placeholder for the profile photo
+
+
 const geoUrl =
   "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
+
+
 const mapCountryToIsoA3 = (country) => {
   const countryMap = {
     USA: "USA",
@@ -43,31 +47,27 @@ const mapCountryToIsoA3 = (country) => {
   };
   return countryMap[country] || null;
 };
+
+
 const CreatorDetailsPage = () => {
   const { creatorId } = useParams();
   const [creatorDetails, setCreatorDetails] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+
   useEffect(() => {
     const fetchCreatorDetails = async () => {
       setLoading(true);
       try {
-        const response = await client.creators.fetchDetails(creatorId);
-        console.log("Received response:", response);
-        console.log(client);
-
-        // Directly use the response assuming 'response' already contains the data object
-        if (response && Object.keys(response).length > 0) {
-          setCreatorDetails(response); // Assuming 'response' is the data object you need
-          console.log("Data set for creator:", response);
-        } else {
-          console.error("Data is empty or undefined.", response);
+        // We make the HTTP request to the server to get the creator details
+        const response = await axios.get(`https://blitz-backend-nine.vercel.app/api/creators/${creatorId}`);
+            setCreatorDetails(response.data);
+        } catch (error) {
+            console.error("Failed to fetch creator details:", error);
+        } finally {
+            setLoading(false);
         }
-      } catch (error) {
-        console.error("Failed to fetch creator details:", error);
-      } finally {
-        setLoading(false);
-      }
     };
 
     if (creatorId) {
@@ -75,47 +75,37 @@ const CreatorDetailsPage = () => {
     }
   }, [creatorId]);
 
+
   if (loading) {
     return <Typography>Loading creator details...</Typography>;
   }
 
+
   if (!creatorDetails) {
     return <Typography>No creator details found.</Typography>;
   }
+
+
   const highlightedCountries = ["USA", "UK", "Mexico", "Canada", "Colombia"]
     .map(mapCountryToIsoA3)
     .filter(Boolean);
 
-  // Safely parse and calculate data for charts
-  const followersData = [
-    { name: "TikTok", value: parseInt(creatorDetails.tiktok || 0, 10) },
-    { name: "Instagram", value: parseInt(creatorDetails.instagram || 0, 10) },
-    { name: "YouTube", value: parseInt(creatorDetails.youtube || 0, 10) },
-  ];
-  const formatPromotionValue = value => {
-    const numericValue = parseFloat(value.replace('$', '').replace(',', '') || 0);
-    return numericValue > 999 ? numericValue.toLocaleString() : numericValue.toFixed(2);
-  };
-  const promotionData = [
-    {
-      name: "TikTok Sound",
-      value: (creatorDetails.tiktok_sound || ''),
-    },
-    {
-      name: "TikTok Brand",
-      value: (creatorDetails.tiktok_brand || ''),
-    },
-    {
-      name: "Instagram Sound",
-      value: (creatorDetails.instagram_sound || ''),
-    },
-    {
-      name: "Instagram Brand",
-      value: (creatorDetails.instagram_brand || ''),
-    },
-  ];
-  
 
+  const followersData = [
+    { name: "TikTok", value: creatorDetails.tiktok },
+    { name: "Instagram", value: creatorDetails.instagram },
+    { name: "YouTube", value: creatorDetails.youtube },
+  ];
+
+
+  const promotionData = [
+    { name: "TikTok Sound", value: creatorDetails.tiktok_sound },
+    { name: "TikTok Brand", value: creatorDetails.tiktok_brand },
+    { name: "Instagram Sound", value: creatorDetails.instagram_sound },
+    { name: "Instagram Brand", value: creatorDetails.instagram_brand },
+  ];
+
+  
   return (
     <>
       <AppBar position="static" sx={{ backgroundColor: "#000" }}>

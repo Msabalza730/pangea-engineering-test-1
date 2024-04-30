@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+  "scripts": { /* Changes to run app in my local*/
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -24,7 +24,7 @@
     "jotai": "^2.7.1",
     "js-cookie": "^3.0.5",
     "modal": "^1.2.0",
-    "react": "^18.2.0",
+    "react": ">=16.8.0",
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.4",
     "react-query": "^3.39.3",
@@ -34,6 +34,10 @@
     "recharts": "^2.12.4",
     "styled-components": "^6.1.8",
     "web-vitals": "^3.5.2"
+  },
+  "peerDependencies": {
+    "@babel/core": "^7.0.0",
+    "react": ">=16.8.0"
   },
   "author": "",
   "license": "ISC",
